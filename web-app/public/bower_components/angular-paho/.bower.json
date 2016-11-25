@@ -1,0 +1,44 @@
+{
+  "name": "angular-paho",
+  "authors": [
+    "Bipol Alam <balam@ispatechnology.com>"
+  ],
+  "description": "paho directive for angular",
+  "main": "dist/angular-paho.js",
+  "moduleType": [],
+  "keywords": [
+    "angular",
+    "paho",
+    "mqtt",
+    "directive"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/bipolalam/angular-paho",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "LICENSE",
+    "webserver.js",
+    "index.js",
+    "package.json",
+    "README.md",
+    "src",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paho-mqtt-js": "^1.0.1"
+  },
+  "version": "0.0.2",
+  "_release": "0.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.2",
+    "commit": "d20fe2ae29c11855845a71786626ddc1798e7a2b"
+  },
+  "_source": "https://github.com/bipolalam/angular-paho.git",
+  "_target": "^0.0.2",
+  "_originalSource": "angular-paho",
+  "_direct": true
+}

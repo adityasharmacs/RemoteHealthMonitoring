@@ -1,0 +1,19 @@
+@import 'themes/light.less';
+@import 'themes/dark.less';
+@import 'themes/bootstrap.less';
+#backtop {
+  opacity: 0;
+  transition: all .3s ease-out;
+  position: fixed;
+  button {
+    outline: none;
+    border: 0;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.show {
+  opacity: 1 !important;
+}

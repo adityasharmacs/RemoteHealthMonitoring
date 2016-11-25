@@ -1,0 +1,29 @@
+ <nav ng-include src="'/partials/header.html'" class="navbar navbar-default"></nav>
+ <div id="home-wrapper">
+    <br>
+            <!-- new event alert -->
+            <div class="alert alert-timeline" ng-if="notifCounter > 0">
+                <span class="closebtn" ng-click="hideAlert()">&times;</span>
+                    <span ng-click="updatePanel()">
+                        <span class="badge">{{notifCounter}}</span>
+                        <strong>New Event Update</strong>
+                    </span>
+            </div>
+            <div class="row">
+                <div class="col-lg-7 col-md-7 col-sm-7">
+                    <!-- patient information panel -->
+                    <div>
+                        <center>PATIENT INFORMATION</center>
+                    </div>
+                    <!-- /. patient information panel -->
+                </div>
+                <div class="col-lg-5 col-md-5 col-sm-5">
+                    <!-- connected devices panel -->
+                    <div>
+                        <center>CONNECTED DEVICES</center>
+                    </div>
+                    <!-- /. connected devices panel -->
+                </div>
+            </div>
+</div>
+<!-- /#wrapper -->

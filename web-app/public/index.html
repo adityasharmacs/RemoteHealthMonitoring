@@ -1,0 +1,82 @@
+<!-- public/index.html -->
+<!doctype html>
+<html lang="en" ng-app="codenet-app">
+<head>
+    <meta charset="UTF-8">
+    <base href="/">
+
+    <title ng-bind="header"></title>
+    <script src="//kendo.cdn.telerik.com/2016.2.504/js/jquery.min.js"></script>
+    <script type='text/javascript' src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"> </script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="//kendo.cdn.telerik.com/2016.3.1028/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="//kendo.cdn.telerik.com/2016.3.1028/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="//kendo.cdn.telerik.com/2016.3.1028/styles/kendo.material.mobile.min.css" />
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
+    <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="bower_components/angular-backtop/dist/angular-backtop.css">
+
+
+</head>
+<body ng-controller='MainController'>
+
+    <div id="wrapper">
+
+        <!-- ANGULAR DYNAMIC CONTENT -->
+        <div ng-view></div>
+
+        <!-- ANGULAR CUSTOM -->
+        <script src="js/main.js"></script>
+    </div>
+
+
+
+    <!-- jQuery -->
+
+    <!-- Angularjs-->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.1.js"></script>
+
+    <!-- SocketIO -->
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="bower_components/angular-socket-io/socket.js"></script>
+
+    <!-- Kendo Scheduler -->
+    <script src="//kendo.cdn.telerik.com/2016.2.504/js/kendo.all.min.js"></script>
+    <script src="//kendo.cdn.telerik.com/2016.2.504/js/kendo.timezones.min.js"></script>
+
+    <!-- D3 -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script type='text/javascript' src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"> </script>
+
+    <!-- NVD3 -->
+    <script src="bower_components/nvd3/build/nv.d3.js"></script>
+    <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+
+    <!--UI-Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.3/ui-bootstrap-tpls.js"></script>
+
+    <!-- Moment.js for datetime-->
+    <script src="bower_components/moment/moment.js"></script>
+    <script src="bower_components/angular-moment/angular-moment.js"></script>
+
+    <!-- ngStorage -->
+    <script src="bower_components/ngstorage/ngStorage.min.js"></script>
+
+    <!-- Go to top button -->
+    <script src="bower_components/angular-backtop/src/js/angular-backtop.js"></script>
+
+    <!-- UI bootstrap features-->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-sanitize.js"></script>
+    <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.1.3.js"></script>
+    <script src="bower_components/bootstrap-ui-datetime-picker/dist/datetime-picker.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "CODENET_BASE_URL": "http://codenet.cisco.com:5000",
+  "PAW_BASE_URL": "http://commit.cisco.com:9999",
+  "COMMIT_URL": "http://commit.cisco.com:9999"
+}

@@ -1,0 +1,42 @@
+ <nav ng-include src="'/partials/header.html'" class="navbar navbar-default"></nav>
+ <div id="home-wrapper">
+    <br>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div>
+                        <!-- user signal panel -->
+                        <div class="panel panel-primary">
+                            <div class="panel-body">
+                                    <div class="col-lg-12 col-sm-12 col-md-12">
+                                        <nvd3 options="options" data="data"></nvd3>
+                                    </div>
+                                    <div class="clearfix"></div>
+                            </div>
+                        </div>
+                        <!-- /. user signal panel -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <!-- current readings reports panel -->
+                    <div class="panel panel-primary">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-heartbeat" aria-hidden="true"></i> Heart Rate : {{heartrate}}</div>
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-stethoscope" aria-hidden="true"></i> Activity : {{activity}}</div>
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-medkit" aria-hidden="true"></i> Body Temp : {{bodyTemp}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-sun-o" aria-hidden="true"></i> Outside Temp : {{outsideTemp}}</div>
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-tint" aria-hidden="true"></i> Outside Humdity : {{humidity}}</div>
+                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-filter" aria-hidden="true"></i> Light intensity : {{light}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /. current readings panel -->
+                </div>
+            </div>
+</div>
+<!-- /#wrapper -->

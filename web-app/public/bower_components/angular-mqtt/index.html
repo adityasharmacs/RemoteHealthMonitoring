@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="cn" ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <title>MQTT Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body ng-controller="indexCtrl">
+
+
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-mqtt/src/browserMqtt.js"></script>
+<script src="bower_components/angular-mqtt/src/angular-MQTT.js"></script>
+<script>
+
+
+    var app = angular.module('app', [
+        'ngMQTT'
+    ]);
+
+    app.config(['MQTTProvider',function(MQTTProvider){
+        MQTTProvider.setHref('ws://cv.endaosi.com:18585');
+    }]);
+
+    app.controller('indexCtrl', ['$scope', 'MQTTService', function ($scope, MQTTService) {
+        MQTTService.on('hello', function(data){
+            alert(data)
+        });
+
+
+        MQTTService.send('hello','word');
+        MQTTService.send('hello','word1');
+        MQTTService.send('hello','word2');
+    }]);
+</script>
+</body>
+</html>

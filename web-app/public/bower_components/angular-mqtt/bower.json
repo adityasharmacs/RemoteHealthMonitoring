@@ -1,0 +1,25 @@
+{
+  "name": "angular-mqtt",
+  "homepage": "https://github.com/shellus/angular-MQTT",
+  "authors": [
+    "shellus <shellus@endaosi.com>"
+  ],
+  "description": "Wrapper MQTT(websocket) in angularjs",
+  "main": "",
+  "moduleType": [],
+  "keywords": [
+    "angular",
+    "mqtt"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.0"
+  }
+}

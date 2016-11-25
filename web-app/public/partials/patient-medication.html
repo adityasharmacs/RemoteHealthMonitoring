@@ -1,0 +1,131 @@
+ <nav ng-include src="'/partials/header.html'" class="navbar navbar-default"></nav>
+ <div id="home-wrapper">
+    <br>
+            <div class="row">
+            	<!-- pill graph panel -->
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div>
+                        <nvd3 options="options" data="data"></nvd3>
+                    </div>
+                </div>
+                <!-- /. pill graph panel -->
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <!-- current prescription panel -->
+                    <div>
+                        <div id="example">
+                        <div>
+                        <a href="#" ng-click="openModal()" class="pull-right btn btn-primary btn-sm">
+                              <span class="glyphicon glyphicon-plus"></span> Add Prescription
+                        </a>
+                            <br><br>
+                        <table class="table table-condensed table-striped table-responsive">
+                                <tr>
+                                    <th>Prescription Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Recurrence</th>
+                                    <th>Note</th>
+                                </tr>
+                                <tr ng-repeat="prescription in prescriptions">
+                                    <td>{{prescription.name}}</td>
+                                    <td>{{prescription.startTime}}</td>
+                                    <td>{{prescription.endTime}}</td>
+                                    <td>{{prescription.recurrence}}</td>
+                                    <td>{{prescription.note}}</td>
+                                </tr>
+                        </table>
+                        <!-- modal for new prescription-->
+                        <modal visible="prescriptionModal">
+                            <form class="form-horizontal" role="form" name="prescriptionForm" ng-submit="savePrescription();" novalidate>
+                                <div class="row">
+                                    <div class="col-xs-10 col-xs-offset-1">
+                                    <input id="btn-input" type="text" name="subject" class="form-control form-control-sm" placeholder="Name" ng-model="postContent.name" maxlength="50" required>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-xs-10 col-xs-offset-1">
+                                    <input type="text" name="summary" class="form-control form-control-sm" placeholder="Note" ng-model="postContent.note" maxlength="100">
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                  <div class="col-xs-4 col-xs-offset-1">
+                                    <select name="status" ng-model="postContent.recurrence" class="form-control form-control-sm" required>
+                                      <option selected="selected" ng-selected="true" value="nostatus">--Select Recurrence--</option>
+                                      <option value="None">None</option>
+                                      <option value="Daily">Daily</option>
+                                      <option value="Weekly">Weekly</option>
+                                      <option value="Monthly">Monthly</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-lg-5 col-md-5 col-sm-5 col-sm-offset-1">
+                                        <label for="start">Start Time :</label>
+                                            <p class="input-group">
+                                              <input type="text" id="start" class="form-control input-sm" uib-datepicker-popup="{{format}}" ng-model="postContent.startTime" is-open="popupStart.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                              <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-sm" ng-click="openStart()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                              </span>
+                                            </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-5 col-sm-5">
+                                            <label for="end">End Time :</label>
+                                            <p class="input-group">
+                                              <input type="text" id="end" class="form-control input-sm" uib-datepicker-popup="{{format}}" ng-model="postContent.endTime" is-open="popupEnd.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                              <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-sm" ng-click="openEnd()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                              </span>
+                                            </p>
+                                            <br>
+                                            <span>{{errMessage}}</span>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <center>
+                                    <button type="submit" class="btn btn-primary" ng-disabled="prescriptionForm.$invalid">
+                                        <i class="fa fa-paper-plane"> Save </i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-hidden="true"> Cancel </button>
+                                </center>
+                            </form>
+                    </modal>
+                    <!-- /.modal for new prescription-->
+
+                            <!--<div kendo-scheduler k-options="schedulerOptions">
+                                <span k-event-template class='custom-event'>{{dataItem.title}}</span>
+                                <div k-all-day-event-template class='custom-all-day-event'>{{dataItem.title}}</div>
+                            </div>-->
+                        </div>
+
+                    <style>
+                        .custom-event {
+                            color: #fff;
+                            text-shadow: 0 1px 0 #000;
+                        }
+                        .custom-all-day-event {
+                            text-align: center;
+                            text-transform: uppercase
+                        }
+                    </style>
+                    </div>
+                    </div>
+                    <!-- /. current prescription panel -->
+                </div>
+            </div>
+            <div class="row">
+                <!-- pill reminder panel -->
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div>
+                        PILL REMINDER
+                    </div>
+                    <div>
+                        PILL ALERTS
+                    </div>
+                </div>
+                <!-- /. pill reminder panel -->
+            </div>
+</div>
+<!-- /#wrapper -->
