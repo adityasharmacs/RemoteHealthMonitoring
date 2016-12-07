@@ -29,18 +29,18 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
     });
 
     socket.on('BottleSensor', function (message) {
-        console.log("Pill bottle data : " + message.data);
         var data = message.data;
         $scope.dateTemp = new Date();
         $scope.data[0].values.push({"x":data.timestamp,"y":data.pillTaken})
     });
 
     socket.on('HeartRate', function (message) {
-        $scope.heartrate = message.data;
+        $scope.heartrate = parseInt(message.data);
     });
 
     socket.on('Prediction', function (message) {
-        $scope.prediction = message.data.prediction;
+        //$scope.prediction = message.data.prediction;
+        $scope.prediction = 'Normal';
     });
 
     /* Chart options */

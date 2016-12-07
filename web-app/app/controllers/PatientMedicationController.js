@@ -17,8 +17,9 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
     socket.on('BottleSensor', function (message) {
         var data = message.data;
         $scope.dateTemp = new Date();
-        $scope.pillsRemaining = data.pillsRemaining;
-        $scope.pillName = data.pillName;
+        $scope.pillsRemaining = data.pillRemaining;
+        console.log("pills remaining " + $scope.pillsRemaining);
+        $scope.pillName = 'Cozaar';
         $scope.lastPillTime = {"x":data.timestamp};
         $scope.data[0].values.push({"x":data.timestamp,"y":data.pillTaken})
     });
@@ -138,7 +139,7 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
                 xAxis: {
                     axisLabel: 'Time',
                     tickFormat: function(d) {
-                        return d3.time.format('%b-%Y %H:%M')(new Date(d))//%b-%Y
+                        return d3.time.format('%m/%d/%Y %H:%M')(new Date(d))
                     },
                     showMaxMin: false
                 },
