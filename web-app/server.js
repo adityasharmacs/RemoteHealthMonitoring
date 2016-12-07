@@ -145,9 +145,10 @@ var sendReminders = function(events) {
     if(events.length > 0) {
     for(var i=0; i < events.length; i++) {
         (function (i) {
+        if(events[i].name!=undefined || events[i].name!= null) {
         var name = events[i].name;
-        var start = events[i].startTime.getTime();
-        var end = events[i].endTime.getTime();
+        var start = new Date(events[i].startTime).getTime();
+        var end = new Date(events[i].endTime).getTime();
         var currentDate = new Date().getTime();
         var alertName = "alert-" + name;
         var hours;
@@ -208,38 +209,31 @@ var sendReminders = function(events) {
             else if(events[i].recurrence == 'Never') {
                 var reoccurReminder = '' + events[i].hours + ':' + events[i].minutes + events[i].period;
                 var reoccurAlert = '' + (events[i].hours+1) + ':' + events[i].minutes + events[i].period;
-                agenda.schedule(reoccurReminder, events[i].name);
-                agenda.schedule(reoccurAlert, alertName);
+                agenda.every(reoccurReminder, events[i].name);
+                agenda.every(reoccurAlert, alertName);
             }
 
             console.log("Starting agenda job ...")
             agenda.start();
-            //}
+            }
+            else {
+                var cronTime = '' + new Date(events[i].startsAt).getMinutes() + ' ' + new Date(events[i].startsAt).getHours() + ' * * *';
+                agenda.define(events[i].title, function(job, done) {
+                    var remind = "Appointment Reminder for  " + events[i].title + " at " + events[i].startsAt;
+                    io.sockets.emit('AppointmentReminder', {"data": remind});
+                    sendEmail('Appointment Reminder', remind)
+                    done();
+                });
+
+                agenda.every(cronTime, events[i].title);
+                agenda.start();
+           
+            }
         }(i));
     }
     }
 }
 
-/*var sendAppointmentReminders = function(event) {
-    if(events.length > 0) {
-    for(var i=0; i < events.length; i++) {
-        (function (i) {
-            var start = events[i].startsAt.getTime();
-            var end = events[i].endsAt.getTime();
-            var currentDate = new Date().getTime();
-            if(currentDate > start && currentDate < end) {
-            agenda.define(events[i].name, function(job, done) {
-                var remind = "Appointment Reminder for  " + events[i].title ;
-                io.sockets.emit('AppointmentReminder', {"data": remind});
-                sendEmail('Appointment Reminder', remind)
-                done();
-            });
-            agenda.every('1 day', events[i].title);
-            console.log("Starting agenda job ...")
-            agenda.start();
-            }
-        }(i));
-}*/
 
 /* CORS */
 app.use(function (req, res, next) {
@@ -327,12 +321,13 @@ app.use(function (req, res, next) {
             endTime: request.body.endTime,
             recurrence: request.body.recurrence,
           });
-        sendReminders(request.body);
         newEntry.save(function(err, newEntry) {
           if (err) return console.error(err);
           console.dir(newEntry);
           response.jsonp([]);
         });
+        sendReminders([request.body]);
+
     });
 
 /* MongoDB HTTP call to update prescriptions */
@@ -385,6 +380,7 @@ app.use(function (req, res, next) {
     app.get('/api/getAppointments', function(request, response) {
         AppointmentsCollection.find(function(err, appointments) {
           if (err) return console.error(err);
+          sendReminders(appointments);
           response.jsonp(appointments);
         });
     });
@@ -397,16 +393,7 @@ app.use(function (req, res, next) {
     app.use(bodyParser.json());
 
     app.post('/api/postAppointments', function(request, response) {
-        console.log(request.body)
         var newEntry = new AppointmentsCollection({
-            name: request.body.name,
-            startTime: request.body.startTime,
-            hours: request.body.hours,
-            minutes: request.body.minutes,
-            period: request.body.period,
-            note: request.body.note,
-            endTime: request.body.endTime,
-            recurrence: request.body.recurrence,
             title: request.body.title,
             startsAt: request.body.startsAt,
             endsAt: request.body.endsAt,
@@ -418,6 +405,7 @@ app.use(function (req, res, next) {
           console.dir(newEntry);
           response.jsonp([]);
         });
+        sendReminders([request.body]);
     });
 
 /* MongoDB HTTP call to delete appointments */
@@ -448,33 +436,6 @@ app.post('/api/deleteAppointments', function(request, response) {
         res.header("Access-Control-Allow-Origin", "*");
         res.send("OK");
     });
-
-
-/* Generate Pill Reminders  - Not Using This*/
-/*var reminders = function() {
-    Collection.find(function(err, prescriptions) {
-        if (err) return console.error(err);
-        for(var i = 0; i < prescriptions.length; i++) {
-            var rule;
-            if(prescriptions[i].Recurrence == 'Daily') {
-                rule = '30 2 * * *'
-            }
-            else if(prescriptions[i].Recurrence == 'Weekly') {
-                rule = {hour: 2, minute: 30, dayOfWeek: 0}
-            }
-            else if(prescriptions[i].Recurrence == 'Monthly') {
-                rule = '30 2 1 * *'
-            }
-            /*schedule.scheduleJob(prescriptions[i].Name, { start: prescriptions[i].Start, end: prescriptions[i].End, rule: rule }, function(){
-              socket.emit('Reminder', {"data": "Pill Reminder"});
-            });
-        }
-    });
-}*/
-
-
-/* Delete Reminder */
-/* Update Reminder */
 
 //url rewriting for browser reload
 /*app.get('*', function(req, res, next) {

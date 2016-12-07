@@ -301,7 +301,7 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
         console.log("Pill bottle data : " + message.data);
         var data = message.data;
         $scope.dateTemp = new Date();
-        $scope.data[0].values.push({"x":$scope.dateTemp,"y":data.pillTaken})
+        $scope.data[0].values.push({"x":data.timestamp,"y":data.pillTaken})
     });
 
     socket.on('HeartRate', function (message) {
