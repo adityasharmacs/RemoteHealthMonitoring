@@ -72,12 +72,14 @@ io.sockets.on('connection', function (socket) {
 	            if(topic == "ecg-filtered-readings")
 	            {
                     socket.emit('EcgSensor', {"data": JSON.parse(message)});
+                    //console.log("ecg data" + JSON.parse(message));
 	            }
 	            else if(topic == "pill-bottle-readings")
 	            {
                     var msg = JSON.parse(message)
 	                lastPillName = message.pillName;
                     lastPillTime = message.timestamp;
+                    //console.log("Pill data " + msg)
                     socket.emit('BottleSensor', {"data": JSON.parse(message)});
 	            }
 	            else if(topic == "motion-sensor-readings")
@@ -86,7 +88,6 @@ io.sockets.on('connection', function (socket) {
 	            }
                 else if(topic == "heartrate-readings")
                 {
-                    console.log(JSON.parse(message))
                     socket.emit('HeartRate', {"data": JSON.parse(message)});
                 }
                 else if(topic == "ecg-prediction")

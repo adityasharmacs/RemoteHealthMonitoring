@@ -1,6 +1,7 @@
 /* Factory for the SocketIO */
 module.exports = function ($rootScope) {
 	var socket = io.connect('ws://54.218.239.42:5000');
+	//var socket = io.connect('ws://localhost:5000');
 	socket.connect
 	return {
 	    on: function (eventName, callback) {
