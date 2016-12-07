@@ -2,7 +2,7 @@
  <div id="home-wrapper">
     <br>
             <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="col-lg-9 col-md-9 col-sm-9">
                     <div>
                         <!-- user signal panel -->
                         <div class="panel panel-primary">
@@ -16,22 +16,54 @@
                         <!-- /. user signal panel -->
                     </div>
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="col-lg-3 col-md-3 col-sm-3">
                     <!-- current readings reports panel -->
                     <div class="panel panel-primary">
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-heartbeat" aria-hidden="true"></i> Heart Rate : {{heartrate}}</div>
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-stethoscope" aria-hidden="true"></i> Activity : {{activity}}</div>
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-medkit" aria-hidden="true"></i> Body Temp : {{bodyTemp}}</div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <center><h4><i class="fa fa-heartbeat" aria-hidden="true"></i> <b>Heart Rate</b></h4></center>
+                                <br><br>
+                                <center>
+                                <b><h4>{{heartrate}}33 bpm </h4></b>
+                                </center></div>
+                                <div class="col-lg-6 col-md-6 col-sm-6"><h4>
+                                <center><i class="fa fa-stethoscope" aria-hidden="true"></i><b>Activity</b></h4></center> <br>
+                                <center>
+                                <span ng-if="activity != 'Motion'">
+                                    <h3><i class="fa fa-male fa-lg" aria-hidden="true"></i></h3>
+                                </span>
+                                <span ng-if="activity != 'Stationary'">
+                                    <h3><i class="fa fa-blind fa-lg" aria-hidden="true"></i></h3>
+                                </span>
+                                </center>
+                                </div>
                             </div>
+                            <hr>
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-sun-o" aria-hidden="true"></i> Outside Temp : {{outsideTemp}}</div>
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-tint" aria-hidden="true"></i> Outside Humdity : {{humidity}}</div>
-                                <div class="col-lg-4 col-md-4 col-sm-4"><i class="fa fa-filter" aria-hidden="true"></i> Light intensity : {{light}}</div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <center><h4><i class="fa fa-medkit" aria-hidden="true"></i> <b>Body Temperature</b></h4></center>
+                                <br> <center><b><h4>{{bodyTemp}}</h4></b></center></div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <center><h4><i class="fa fa-sun-o" aria-hidden="true"></i> <b>Outside Temperature </b></h4> </center>
+                                <br> <center><b><h4>{{outsideTemp}}</h4></b></center></div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <center><h4><i class="fa fa-tint" aria-hidden="true"></i> <b>Outside Humdity</b></h4></center>
+                                <br> 
+                                <center><b><h4>{{humidity}}</h4></b></center></div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <center><h4><i class="fa fa-filter" aria-hidden="true"></i> <b>Light intensity</b></h4></center> 
+                                <br> 
+                                <center><b><h4>{{light}}</h4></b></center>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12"> <h4><b><center>Predicted Health Condition</center></b> </h4><br>
+                                <center><b><h4><span ng-if="!prediction">Normal</span>{{prediction}}</h4></b></center></div>
                             </div>
                         </div>
                     </div>

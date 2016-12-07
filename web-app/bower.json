@@ -16,12 +16,14 @@
     "angular-slick": "^0.2.1",
     "jquery-2.1.0.min": "http://code.jquery.com/jquery-2.1.0.min.js",
     "ngstorage": "^0.3.11",
-    "angular-moment": "1.0.0-beta.3",
+    "angular-moment": "^1.0.1",
     "angular-backtop": "*",
     "bootstrap-ui-datetime-picker": "^2.4.3",
     "angular-nvd3": "^1.0.9",
     "angular-socket-io": "^0.7.0",
-    "angular-mqtt": "^1.0.1"
+    "angular-mqtt": "^1.0.1",
+    "highcharts-ng": "^0.0.13",
+    "angular-bootstrap-calendar": "^0.27.1"
   },
   "resolutions": {
     "angular": ">=1.4.0"

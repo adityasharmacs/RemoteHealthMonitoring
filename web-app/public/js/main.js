@@ -20,16 +20,16 @@ module.exports = function($routeProvider, $locationProvider) {
             controller: 'RegisterController'
         })
         // patient profile page
-        .when('/patient-profile',{
+        /*.when('/patient-profile',{
             templateUrl:'/partials/patient-profile.html',
             controller: 'PatientProfileController'
-        })
-        // patient profile page
+        })*/
+        // patient appointments page
         .when('/patient-appointments',{
             templateUrl:'/partials/patient-appointments.html',
-            controller: 'PatientAppointmentController'
+            controller: 'PatientAppointmentController as vm'
         })
-        // patient profile page
+        // patient medication page
         .when('/patient-medication',{
             templateUrl:'/partials/patient-medication.html',
             controller: 'PatientMedicationController'
@@ -67,7 +67,7 @@ var socketIO = require('./factory/socketIO');
 
 
 // Initializing Codenet App
-var app = angular.module('codenet-app', [require('angular-route'), require('angular-css'), 'Service', 'angularMoment', 'ngStorage', 'angular.backtop', 'ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ui.bootstrap.datetimepicker', 'nvd3', 'kendo.directives']);
+var app = angular.module('codenet-app', [require('angular-route'), require('angular-css'), 'Service', 'angularMoment', 'ngStorage', 'angular.backtop', 'ngSanitize', 'mwl.calendar', 'ngAnimate', 'ui.bootstrap', 'colorpicker.module', 'ui.bootstrap.datetimepicker', 'nvd3', 'kendo.directives']);
 
 // Configuring Codenet Routes
 app.config(appRoutes);
@@ -76,7 +76,7 @@ app.config(appRoutes);
 app.controller('MainController', ['$scope', '$sessionStorage', '$location', MainController])
 app.controller('RegisterController', ['$rootScope', '$scope', '$sessionStorage', '$css', 'loginService', '$location', RegisterController])
 app.controller('LoginController', ['$rootScope', '$scope', '$sessionStorage', '$css', 'patientService', 'loginService', '$location', LoginController])
-app.controller('PatientAppointmentController', ['$scope','$css', 'patientService', '$location', '$timeout', 'socket', PatientAppointmentController])
+app.controller('PatientAppointmentController', ['$rootScope', '$scope','$css', 'patientService', '$location', '$timeout', 'socket', 'calendarConfig', PatientAppointmentController])
 app.controller('PatientProfileController', ['$rootScope', '$scope', '$sessionStorage','$css', 'patientService', '$location', '$timeout', PatientProfileController])
 app.controller('PatientHomeController', ['$rootScope', '$scope', '$css', 'patientService', '$location', '$timeout', 'socket', PatientHomeController])
 app.controller('PatientMedicationController', ['$rootScope', '$scope','$css', 'patientService', '$location', '$timeout', 'socket', PatientMedicationController])
@@ -135,85 +135,131 @@ module.exports = function($scope, $sessionStorage, $location) {
 }
 },{}],5:[function(require,module,exports){
 /* Controller for the Home Page */
-module.exports = function($rootScope, $scope, $css, patientService, $location, $timeout, socket) {
+module.exports = function($rootScope, $scope, $css, patientService, $location, $timeout, socket, calendarConfig) {
 
 	$css.bind({ href: 'css/home-profile.css'}, $scope);
-    $rootScope.header = "Patient Madication Page";
+    $rootScope.header = "Patient Appointment Page";
 
-     /* Kendo Scheduler for prescriptions*/
-            $scope.schedulerOptions = {
-            date: new Date("2016/1/1"),
-            startTime: new Date("2016/1/1 07:00 AM"),
-            height: 600,
-            views: [
-                "day",
-                { type: "workWeek", selected: true },
-                "week",
-                "month",
-            ],
-            timezone: "Etc/UTC",
-            dataSource: {
-            batch: true,
-            transport: {
-                read: {
-                    url: "//demos.telerik.com/kendo-ui/service/tasks",
-                    dataType: "jsonp"
-                },
-                update: {
-                    url: "//demos.telerik.com/kendo-ui/service/tasks/update",
-                    dataType: "jsonp"
-                },
-                create: {
-                    url: "//demos.telerik.com/kendo-ui/service/tasks/create",
-                    dataType: "jsonp"
-                },
-                destroy: {
-                    url: "//demos.telerik.com/kendo-ui/service/tasks/destroy",
-                    dataType: "jsonp"
-                },
-                parameterMap: function(options, operation) {
-                    if (operation !== "read" && options.models) {
-                        return {models: kendo.stringify(options.models)};
-                    }
-                }
-            },
-                schema: {
-                    model: {
-                        id: "taskId",
-                        fields: {
-                            taskId: { from: "TaskID", type: "number" },
-                            title: { from: "Title", defaultValue: "No title", validation: { required: true } },
-                            start: { type: "date", from: "Start" },
-                            end: { type: "date", from: "End" },
-                            startTimezone: { from: "StartTimezone" },
-                            endTimezone: { from: "EndTimezone" },
-                            description: { from: "Description" },
-                            recurrenceId: { from: "RecurrenceID" },
-                            recurrenceRule: { from: "RecurrenceRule" },
-                            recurrenceException: { from: "RecurrenceException" },
-                            ownerId: { from: "OwnerID", defaultValue: 1 },
-                            isAllDay: { type: "boolean", from: "IsAllDay" }
-                        }
-                    }
-                },
-                filter: {
-                    logic: "or",
-                    filters: [
-                        { field: "ownerId", operator: "eq", value: 1 },
-                        { field: "ownerId", operator: "eq", value: 2 }
-                    ]
-                }
-            },
-            resources: [
-                {
-                    field: "ownerId",
-                    title: "Owner",
-                    dataSource: [
-                        { text: "Bob", value: 2, color: "#51a0ed" },
-                    ]
-                }
-            ]
-        };
+    var vm = this;
+
+    //These variables MUST be set as a minimum for the calendar to work
+    vm.calendarView = 'month';
+    vm.viewDate = new Date();
+    var actions = [/*{
+      label: '<i class=\'glyphicon glyphicon-pencil\'></i>',
+      onClick: function(args) {
+        console.log('Edited', args.calendarEvent);
+      }
+    }, */{
+      label: '<i class=\'glyphicon glyphicon-remove\'></i>',
+      onClick: function(args) {
+      	patientService.deleteAppointments(args.calendarEvent)
+      	.then(function(response) {
+                console.log("Post deleted successfully");
+                vm.getAppointment();
+        }, function(error) {
+                console.log("Error: " + JSON.stringify(error));
+        }); 
+        //console.log('Deleted', args.calendarEvent);
+      }
+    }];
+
+    vm.events = [];
+    vm.getAppointment = function() {
+    	patientService.getAppointments()
+            .then(function(response) {
+            	vm.events = [];
+            	for(var i=0; i < response.data.length; i++){
+            	response.data[i].startsAt = new Date(response.data[i].startsAt);
+            	response.data[i].endsAt = new Date(response.data[i].endsAt);
+            	response.data[i].actions = actions;
+            	response.data[i].color = calendarConfig.colorTypes.important;
+            	vm.events.push(response.data[i])
+        		};
+
+            }, function(error) {
+                console.log("Error: " + JSON.stringify(error));
+        });
+    }
+
+    vm.getAppointment()
+
+    vm.cellIsOpen = true;
+
+    $scope.appointmentModal = false;
+    $scope.modalHeader;
+    $scope.newEvent;
+    $scope.openNew = function () {
+    	$scope.newEvent = {
+        	title: 'New event',
+        	startsAt: moment().startOf('day').toDate(),
+        	endsAt: moment().endOf('day').toDate(),
+        	draggable: true,
+        	resizable: true
+      	};
+        $scope.appointmentModal =!$scope.appointmentModal;
+    }
+
+    vm.addEvent = function(event) {
+      $scope.appointmentModal = false;
+      patientService.postAppointments(event)
+            .then(function(response) {
+                console.log("Post saved successfully");
+                vm.getAppointment();
+            }, function(error) {
+                console.log("Error: " + JSON.stringify(error));
+        });
+    };
+
+    vm.eventClicked = function(event) {
+      console.log('Clicked', event);
+    };
+
+    vm.eventEdited = function(event) {
+      alert('Edited', event);
+    };
+
+    vm.eventDeleted = function(event) {
+      patientService.deleteAppointments(event)
+      	.then(function(response) {
+                console.log("Post deleted successfully");
+                vm.getAppointment();
+        }, function(error) {
+                console.log("Error: " + JSON.stringify(error));
+        }); 
+    };
+
+    vm.eventTimesChanged = function(event) {
+      alert('Dropped or resized', event);
+    };
+
+    vm.toggle = function($event, field, event) {
+      $event.preventDefault();
+      $event.stopPropagation();
+      event[field] = !event[field];
+    };
+
+    vm.timespanClicked = function(date, cell) {
+
+      if (vm.calendarView === 'month') {
+        if ((vm.cellIsOpen && moment(date).startOf('day').isSame(moment(vm.viewDate).startOf('day'))) || cell.events.length === 0 || !cell.inMonth) {
+          vm.cellIsOpen = false;
+        } else {
+          vm.cellIsOpen = true;
+          vm.viewDate = date;
+        }
+      } else if (vm.calendarView === 'year') {
+        if ((vm.cellIsOpen && moment(date).startOf('month').isSame(moment(vm.viewDate).startOf('month'))) || cell.events.length === 0) {
+          vm.cellIsOpen = false;
+        } else {
+          vm.cellIsOpen = true;
+          vm.viewDate = date;
+        }
+      }
+
+    };
+
+
 };
 },{}],6:[function(require,module,exports){
 /* Controller for the Patient Profile Page */
@@ -233,43 +279,43 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
         $scope.outsideTemp = data.AmbientTemperature;
         $scope.humidity = data.Humidity;
         $scope.light = data.Light;
-        $scope.dateTemp = data.Timestamp;
-        $scope.data[2].values.push({"x":data.Timestamp,"y":data.BodyTemperature})
-        $scope.data[3].values.push({"x":data.Timestamp,"y":data.AmbientTemperature})
+        $scope.dateTemp = new Date();//data.Timestamp;
+        $scope.data[2].values.push({"x":$scope.dateTemp * 1000 ,"y":data.BodyTemperature})
+        $scope.data[3].values.push({"x":$scope.dateTemp * 1000 ,"y":data.AmbientTemperature})
     });
 
     socket.on('EcgSensor', function (message) {
-        var ecgArr = [];
-        angular.forEach(message.data, function(d) {
-            ecgArr.push({"x":d.timestamp, "y": d.filteredEcgData})
-        });
-        $scope.data[1].values = message.data;
+        //var ecgArr = [];
+        $scope.data[1].values = [];
+        for(var i=0; i < message.data.heart.length; i++){
+            $scope.data[1].values.push({"x":message.data.timestamp[i], "y": message.data.heart[i] / 1000})
+        };
     });
 
     socket.on('BottleSensor', function (message) {
         console.log("Pill bottle data : " + message.data);
-        //var data = message.data;
-        //$scope.data[0].values.push({"x":data.Timestamp,"y":data.PillTaken})
+        var data = message.data;
+        $scope.dateTemp = new Date();
+        $scope.data[0].values.push({"x":$scope.dateTemp,"y":data.pillTaken})
     });
 
     socket.on('HeartRate', function (message) {
-        $scope.heartrate = message.data.heartrate
+        $scope.heartrate = message.data;
     });
 
     socket.on('Prediction', function (message) {
         $scope.prediction = message.data.prediction;
     });
 
-
     /* Chart options */
             $scope.options = {
             chart: {
                 type: 'linePlusBarChart',
-                height: 500,
+                height: 580,
                 margin: {
                     top: 30,
                     right: 75,
-                    bottom: 50,
+                    bottom: 10,
                     left: 75
                 },
                 bars: {
@@ -285,15 +331,16 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
                     tickFormat: function(d) {
                         var dx = $scope.data[0].values[d] && $scope.data[0].values[d].x || 0;
                         if (dx > 0) {
-                            return d3.time.format('%x')(new Date(dx))
+                            console.log(d3.time.format('%x')(new Date()))
+                            return d3.time.format('%x')(new Date())//dx
                         }
                         return null;
                     }
                 },
                 x2Axis: {
                     tickFormat: function(d) {
-                        var dx = $scope.data[0].values[d] && $scope.data[0].values[d].x || 0;
-                        return d3.time.format('%b-%Y')(new Date(dx))
+                        //var dx = $scope.data[0].values[d] && $scope.data[0].values[d].x || 0;
+                        return d3.time.format('%H:%M:%S')(new Date(d))//%b-%Y
                     },
                     showMaxMin: false
                 },
@@ -319,7 +366,6 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
                 "key" : "Pills Taken" ,
                 "bar": true,
                 "values" : [ ]
-                //"values" : [ [ 1136005200000 , 1271000.0] , [ 1143781200000 , 0] , [ 1146369600000 , 0] , [ 1149048000000 , 0] , [ 1180584000000 , 2648493.0] , [ 1183176000000 , 2522993.0] , [ 1185854400000 , 2522993.0] , [ 1188532800000 , 2522993.0] , [ 1191124800000 , 2906501.0] , [ 1193803200000 , 2906501.0] , [ 1196398800000 , 2906501.0] , [ 1199077200000 , 2206761.0] , [ 1201755600000 , 2206761.0] , [ 1204261200000 , 2206761.0] , [ 1206936000000 , 2287726.0] , [ 1209528000000 , 2287726.0] , [ 1212206400000 , 2287726.0] , [ 1214798400000 , 2732646.0] , [ 1217476800000 , 2732646.0] , [ 1220155200000 , 2732646.0] , [ 1222747200000 , 2599196.0] , [ 1225425600000 , 2599196.0] , [ 1228021200000 , 2599196.0] , [ 1230699600000 , 1924387.0] , [ 1233378000000 , 1924387.0] , [ 1235797200000 , 1924387.0] , [ 1238472000000 , 1756311.0] , [ 1241064000000 , 1756311.0] , [ 1243742400000 , 1756311.0] , [ 1246334400000 , 1743470.0] , [ 1249012800000 , 1743470.0] , [ 1251691200000 , 1743470.0] , [ 1254283200000 , 1519010.0] , [ 1256961600000 , 1519010.0] , [ 1259557200000 , 1519010.0] , [ 1262235600000 , 1591444.0] , [ 1264914000000 , 1591444.0] , [ 1267333200000 , 1591444.0] , [ 1270008000000 , 1543784.0] , [ 1272600000000 , 1543784.0] , [ 1275278400000 , 1543784.0] , [ 1277870400000 , 1309915.0] , [ 1280548800000 , 1309915.0] , [ 1283227200000 , 1309915.0] , [ 1285819200000 , 1331875.0] , [ 1288497600000 , 1331875.0] , [ 1291093200000 , 1331875.0] , [ 1293771600000 , 1331875.0] , [ 1296450000000 , 1154695.0] , [ 1298869200000 , 1154695.0] , [ 1301544000000 , 1194025.0] , [ 1304136000000 , 1194025.0] , [ 1306814400000 , 1194025.0] , [ 1309406400000 , 1194025.0] , [ 1312084800000 , 1194025.0] , [ 1314763200000 , 1244525.0] , [ 1317355200000 , 475000.0] , [ 1320033600000 , 475000.0] , [ 1322629200000 , 475000.0] , [ 1325307600000 , 690033.0] , [ 1327986000000 , 690033.0] , [ 1330491600000 , 690033.0] , [ 1333166400000 , 514733.0] , [ 1335758400000 , 514733.0]]
             },
             {
                 "key" : "ECG" ,
@@ -347,17 +393,39 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
     $css.bind({ href: 'css/home-profile.css'}, $scope);
     $rootScope.header = "Patient Madication Page";
 
+    $scope.reminderCount= 0;
+    $scope.reminders = [];
+    $scope.alertCount = 0;
+    $scope.alerts = [];
+    $scope.prescriptions = [];
+    $scope.pillsRemaining;
+    $scope.pillName;
+    $scope.lastPillTime;
+
     /* Real-time data from socket.io */
     socket.on('BottleSensor', function (message) {
         var data = message.data;
-        $scope.data[0].values.push({"x":data.Timestamp,"y":data.PillTaken})
+        $scope.dateTemp = new Date();
+        $scope.pillsRemaining = data.pillsRemaining;
+        $scope.pillName = data.pillName;
+        $scope.lastPillTime = {"x":data.timestamp};
+        $scope.data[0].values.push({"x":data.timestamp,"y":data.pillTaken})
+    });
+
+    socket.on('PillReminder', function (message) {
+        $scope.reminderCount++;
+        $scope.reminders.push(message);
+    });
+
+    socket.on('PillAlert', function (message) {
+        $scope.alertCount ++;
+        $scope.alerts.push(message);
     });
 
     /* Display prescriptions*/
     $scope.getPrescriptions = function (){
         patientService.getPrescriptions()
             .then(function (response) {
-                console.log(JSON.stringify(response.data));
                 $scope.prescriptions = response.data;
             }, function(error) {
                 console.log("ERROR :" + error);
@@ -372,6 +440,8 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
         patientService.getPillData()
             .then(function (response) {
                 $scope.data[0].values = response.data;
+                var len = $scope.data[0].values.length;
+                $scope.lastPillTime = $scope.data[0].values[len-1];
             }, function(error) {
                 console.log("ERROR :" + error);
             });
@@ -383,7 +453,9 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
     $scope.getMissedPillData = function (){
         patientService.getMissedPillData()
         .then(function (response) {
-            $scope.data[1].values = response.data;
+            //$scope.data.push({"key": "Missed Dosage", "values": [{"x":1480719596819,"y":10},{"x":1480817400235,"y":1},{"x":1480817700236,"y":1}]});
+            $scope.data.push({"key": "Missed Dosage", "values": response.data});
+            //$scope.data[1].values = response.data;
         }, function(error) {
             console.log("ERROR :" + error);
         });
@@ -399,17 +471,38 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
         $scope.prescriptionModal =!$scope.prescriptionModal;
     }
 
+    /**/
+    $scope.showReminders = function() {
+        $scope.reminderCount= 0;
+        $scope.reminders = [];
+    }
+
+    $scope.closeReminder = function(index) {
+        $scope.reminders.splice(index, 1);
+        $scope.reminderCount--;
+    };
+
+    $scope.showAlerts = function() {
+        $scope.alertCount = 0;
+        $scope.alerts = [];
+    }
+
+    $scope.closeAlert = function(index) {
+        $scope.alerts.splice(index, 1);
+        $scope.alertCount--;
+    };
+
     /* Save new prescription*/
     $scope.postContent = {};
     $scope.savePrescription = function() {
         $scope.postContentCopy = angular.copy($scope.postContent);
         $scope.prescriptions.unshift($scope.postContent);
-            patientService.postPrescription($scope.postContentCopy)
+        patientService.postPrescription($scope.postContentCopy)
             .then(function(response) {
                 console.log("Post saved successfully");
             }, function(error) {
                 console.log("Error: " + JSON.stringify(error));
-            });
+        });
 
         $scope.prescriptionModal = false;
         $scope.postContent = null;
@@ -432,17 +525,18 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
                 duration: 500,
                 stacked: true,
                 xAxis: {
-                    axisLabel: 'Time (ms)',
-                    showMaxMin: false,
-                    tickFormat: function(d){
-                        return d3.format(',f')(d);
-                    }
+                    axisLabel: 'Time',
+                    tickFormat: function(d) {
+                        return d3.time.format('%b-%Y %H:%M')(new Date(d))//%b-%Y
+                    },
+                    showMaxMin: false
                 },
                 yAxis: {
                     axisLabel: 'Y Axis',
                     axisLabelDistance: -20,
                     tickFormat: function(d){
-                        return d3.format(',.1f')(d);
+                        //return d3.format(',.1f')(d);
+                        return d3.format(',f')(d);
                     }
                 }
             }
@@ -451,13 +545,11 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
     	{
     		"key":"Pills Taken",
             "values": []
-    		//"values":[{"x":0,"y":0.13666636608670263},{"x":1,"y":0.16579580570119906},{"x":2,"y":0.17562752497016257},{"x":3,"y":0.100014717991466},{"x":4,"y":0.14828593429097547},{"x":5,"y":0.18341089029720362},{"x":6,"y":0.19598953243603695},{"x":7,"y":0.17797249914314328}]
-    	},{
+    	}/*,{
     		"key":"Missed Dosage",
     		"values": []
     		//"values":[{"x":0,"y":0.13666636608670263},{"x":1,"y":0.16579580570119906},{"x":2,"y":0.17562752497016257},{"x":3,"y":0.100014717991466},{"x":4,"y":0.14828593429097547},{"x":5,"y":0.18341089029720362},{"x":6,"y":0.19598953243603695},{"x":7,"y":0.17797249914314328}]
-    	}];
-
+    	}*/];
 
         /* Date config for model */
         //check date difference
@@ -489,19 +581,11 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
         };
 
         $scope.dateOptions = {
-          dateDisabled: disabled,
           formatYear: 'yy',
           maxDate: new Date(2020, 5, 22),
           minDate: new Date(),
           startingDay: 1
         };
-
-        // Disable weekend selection
-        function disabled(data) {
-            var date = data.date,
-            mode = data.mode;
-            return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
-        }
 
         $scope.openStart = function() {
             $scope.popupStart.opened = true;
@@ -744,6 +828,18 @@ module.exports = function ($http, BASE_URL) {
 
     this.postPrescription = function (data) {
         return $http.post(urlBase + '/postPrescription', data, { headers: headers});
+    }
+
+    this.getAppointments = function () {
+        return $http.get(urlBase + '/getAppointments', { headers: headers});
+    };
+
+    this.postAppointments = function (data) {
+        return $http.post(urlBase + '/postAppointments', data, { headers: headers});
+    }
+
+    this.deleteAppointments = function (data) {
+        return $http.post(urlBase + '/deleteAppointments', data, { headers: headers});
     }
 
     this.loginUser = function (user) {

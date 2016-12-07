@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.1 - 2016-12-01
+- Angular 1.6 support ([#278](https://github.com/urish/angular-moment/pull/278), contributed by [alippai](https://github.com/alippai))
+
+## 1.0.0 - 2016-10-06
+- Improvments to the UMD code
+
+Breaking change: The AMD version now exports the module name ('angularMoment') instead of the actual module object. 
+
+## 1.0.0-beta.6 - 2016-04-24
+- Support for setting the units of the full date threshold of `am-time-ago` ([#237](https://github.com/urish/angular-moment/pull/237), contributed by [denistrustepain](https://github.com/denistrustepain))
+- Add optional arguments `referenceTime` and `formats` to the `amCalendar` filter ([#241](https://github.com/urish/angular-moment/pull/241), contributed by [Nitro-N](https://github.com/Nitro-N))
+- Support moment 2.13.x and above
+
+## 1.0.0-beta.5 - 2016-03-18
+- Bugfix: `amTimeAgo` shouldn't convert the time to local timezone on the element's `title` attribute ([#226](https://github.com/urish/angular-moment/pull/226), contributed by [stackia](https://github.com/stackia))
+- Support moment 2.12.x
+
+## 1.0.0-beta.4 - 2016-02-09
+- Add amStartOf and amEndOf filter ([#203](https://github.com/urish/angular-moment/pull/203), contributed by [pratik14](https://github.com/pratik14))
+- Support Moment 2.11.x
+- Happy Year of the Monkey!
+
 ## 1.0.0-beta.3 - 2015-11-10
 
 - Support AngularJS 1.5.x 
