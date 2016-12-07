@@ -19,16 +19,16 @@ module.exports = function($routeProvider, $locationProvider) {
             controller: 'RegisterController'
         })
         // patient profile page
-        .when('/patient-profile',{
+        /*.when('/patient-profile',{
             templateUrl:'/partials/patient-profile.html',
             controller: 'PatientProfileController'
-        })
-        // patient profile page
+        })*/
+        // patient appointments page
         .when('/patient-appointments',{
             templateUrl:'/partials/patient-appointments.html',
-            controller: 'PatientAppointmentController'
+            controller: 'PatientAppointmentController as vm'
         })
-        // patient profile page
+        // patient medication page
         .when('/patient-medication',{
             templateUrl:'/partials/patient-medication.html',
             controller: 'PatientMedicationController'

@@ -24,6 +24,18 @@ module.exports = function ($http, BASE_URL) {
         return $http.post(urlBase + '/postPrescription', data, { headers: headers});
     }
 
+    this.getAppointments = function () {
+        return $http.get(urlBase + '/getAppointments', { headers: headers});
+    };
+
+    this.postAppointments = function (data) {
+        return $http.post(urlBase + '/postAppointments', data, { headers: headers});
+    }
+
+    this.deleteAppointments = function (data) {
+        return $http.post(urlBase + '/deleteAppointments', data, { headers: headers});
+    }
+
     this.loginUser = function (user) {
         return $http.post(urlBase + '/login', { params: user });
     };

@@ -1,11 +1,20 @@
  <nav ng-include src="'/partials/header.html'" class="navbar navbar-default"></nav>
  <div id="home-wrapper">
     <br>
+            <div uib-alert ng-repeat="reminder in reminders" ng-class="'alert-warning'" id="floating_alert" close="closeReminder($index)">{{reminder.data}}</div>
+            <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-danger'" id="floating_alert" close="closeAlert($index)">{{alert.data}}</div>
             <div class="row">
             	<!-- pill graph panel -->
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div>
                         <nvd3 options="options" data="data"></nvd3>
+                    </div>
+                    <div>
+                        <h4>Last Pill Taken: Cozaar
+                        <br>
+                        <br>
+                        <br>
+                        Last Pill Time: {{lastPillTime.x | amUtc | amLocal | amDateFormat:'dddd, YYYY-MM-DD HH:mm'}}</h4>
                     </div>
                 </div>
                 <!-- /. pill graph panel -->
@@ -14,26 +23,43 @@
                     <div>
                         <div id="example">
                         <div>
-                        <a href="#" ng-click="openModal()" class="pull-right btn btn-primary btn-sm">
+                        <span class="pull-right">
+                        <a href="#" ng-click="showAlerts()" class="btn btn-primary btn-sm">
+                              <span class="glyphicon glyphicon-bullhorn"></span> Alerts
+                              <span class="badge">{{alertCount}}</span>
+                        </a>&nbsp&nbsp
+                        <a href="#" ng-click="showReminders()" class="btn btn-primary btn-sm">
+                              <span class="glyphicon glyphicon-bell"></span> Reminders
+                              <span class="badge">{{reminderCount}}</span>
+                        </a>&nbsp&nbsp
+                        <a href="#" ng-click="openModal()" class="btn btn-primary btn-sm">
                               <span class="glyphicon glyphicon-plus"></span> Add Prescription
-                        </a>
+                        </a>&nbsp&nbsp
+                        </span>
                             <br><br>
                         <table class="table table-condensed table-striped table-responsive">
                                 <tr>
-                                    <th>Prescription Name</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
+                                    <th>Prescription</th>
+                                    <th>Time</th>
+                                    <th>Start</th>
+                                    <th>End</th>
                                     <th>Recurrence</th>
                                     <th>Note</th>
+                                    <th>Pills Remaining</th>
                                 </tr>
                                 <tr ng-repeat="prescription in prescriptions">
                                     <td>{{prescription.name}}</td>
-                                    <td>{{prescription.startTime}}</td>
-                                    <td>{{prescription.endTime}}</td>
+                                    <td>{{prescription.hours}}: {{prescription.minutes}} {{prescription.period}}</td>
+                                    <td>{{prescription.startTime | amUtc | amLocal | amDateFormat:'dddd, YYYY-MM-DD'}}</td>
+                                    <td>{{prescription.endTime | amUtc | amLocal | amDateFormat:'dddd, YYYY-MM-DD'}}</td>
                                     <td>{{prescription.recurrence}}</td>
                                     <td>{{prescription.note}}</td>
+                                    <td>
+                                    <span ng-if="pillName == prescription.name">{{pillsRemaining}}</span>
+                                    <span ng-if="pillName != prescription.name"> - </span>
+                                    </td>
                                 </tr>
-                        </table>
+                        </table>&nbsp&nbsp
                         <!-- modal for new prescription-->
                         <modal visible="prescriptionModal">
                             <form class="form-horizontal" role="form" name="prescriptionForm" ng-submit="savePrescription();" novalidate>
@@ -47,6 +73,25 @@
                                     <div class="col-xs-10 col-xs-offset-1">
                                     <input type="text" name="summary" class="form-control form-control-sm" placeholder="Note" ng-model="postContent.note" maxlength="100">
                                     </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                <div class="col-xs-2 col-xs-offset-1">
+                                <b>Prescription Time : </b>
+                                </div>
+                                <div class="col-xs-2">
+                                    <input type="number" min="0" max="12" ng-model="postContent.hours" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-xs-2">
+                                    <input type="number" min="0" max="60" ng-model="postContent.minutes" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-xs-3">
+                                    <select name="period" ng-model="postContent.period" class="form-control form-control-sm" required>
+                                      <option selected="selected" ng-selected="true" value="nostatus">--AM/PM--</option>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
                                 </div>
                                 <br>
                                 <div class="row">
@@ -93,11 +138,6 @@
                             </form>
                     </modal>
                     <!-- /.modal for new prescription-->
-
-                            <!--<div kendo-scheduler k-options="schedulerOptions">
-                                <span k-event-template class='custom-event'>{{dataItem.title}}</span>
-                                <div k-all-day-event-template class='custom-all-day-event'>{{dataItem.title}}</div>
-                            </div>-->
                         </div>
 
                     <style>
@@ -114,18 +154,6 @@
                     </div>
                     <!-- /. current prescription panel -->
                 </div>
-            </div>
-            <div class="row">
-                <!-- pill reminder panel -->
-                <div class="col-lg-2 col-md-2 col-sm-2">
-                    <div>
-                        PILL REMINDER
-                    </div>
-                    <div>
-                        PILL ALERTS
-                    </div>
-                </div>
-                <!-- /. pill reminder panel -->
             </div>
 </div>
 <!-- /#wrapper -->

@@ -23,7 +23,7 @@ var socketIO = require('./factory/socketIO');
 
 
 // Initializing Codenet App
-var app = angular.module('codenet-app', [require('angular-route'), require('angular-css'), 'Service', 'angularMoment', 'ngStorage', 'angular.backtop', 'ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ui.bootstrap.datetimepicker', 'nvd3', 'kendo.directives']);
+var app = angular.module('codenet-app', [require('angular-route'), require('angular-css'), 'Service', 'angularMoment', 'ngStorage', 'angular.backtop', 'ngSanitize', 'mwl.calendar', 'ngAnimate', 'ui.bootstrap', 'colorpicker.module', 'ui.bootstrap.datetimepicker', 'nvd3', 'kendo.directives']);
 
 // Configuring Codenet Routes
 app.config(appRoutes);
@@ -32,7 +32,7 @@ app.config(appRoutes);
 app.controller('MainController', ['$scope', '$sessionStorage', '$location', MainController])
 app.controller('RegisterController', ['$rootScope', '$scope', '$sessionStorage', '$css', 'loginService', '$location', RegisterController])
 app.controller('LoginController', ['$rootScope', '$scope', '$sessionStorage', '$css', 'patientService', 'loginService', '$location', LoginController])
-app.controller('PatientAppointmentController', ['$scope','$css', 'patientService', '$location', '$timeout', 'socket', PatientAppointmentController])
+app.controller('PatientAppointmentController', ['$rootScope', '$scope','$css', 'patientService', '$location', '$timeout', 'socket', 'calendarConfig', PatientAppointmentController])
 app.controller('PatientProfileController', ['$rootScope', '$scope', '$sessionStorage','$css', 'patientService', '$location', '$timeout', PatientProfileController])
 app.controller('PatientHomeController', ['$rootScope', '$scope', '$css', 'patientService', '$location', '$timeout', 'socket', PatientHomeController])
 app.controller('PatientMedicationController', ['$rootScope', '$scope','$css', 'patientService', '$location', '$timeout', 'socket', PatientMedicationController])
