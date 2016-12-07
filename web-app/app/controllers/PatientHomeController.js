@@ -47,7 +47,7 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
             $scope.options = {
             chart: {
                 type: 'linePlusBarChart',
-                height: 580,
+                height: 520,
                 margin: {
                     top: 30,
                     right: 75,

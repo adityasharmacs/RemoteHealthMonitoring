@@ -5,6 +5,11 @@ module.exports = function($routeProvider, $locationProvider) {
 
         // patient home page
         .when('/', {
+            templateUrl: '/partials/entry.html',
+            controller: 'PatientProfileController'
+        })
+        // patient home page
+        .when('/patient-home', {
             templateUrl: '/partials/patient-home.html',
             controller: 'PatientHomeController'
         })

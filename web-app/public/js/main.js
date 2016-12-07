@@ -6,6 +6,11 @@ module.exports = function($routeProvider, $locationProvider) {
 
         // patient home page
         .when('/', {
+            templateUrl: '/partials/entry.html',
+            controller: 'PatientProfileController'
+        })
+        // patient home page
+        .when('/patient-home', {
             templateUrl: '/partials/patient-home.html',
             controller: 'PatientHomeController'
         })
@@ -311,7 +316,7 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
             $scope.options = {
             chart: {
                 type: 'linePlusBarChart',
-                height: 580,
+                height: 520,
                 margin: {
                     top: 30,
                     right: 75,
@@ -641,15 +646,9 @@ module.exports = function($rootScope, $scope, $css, patientService, $location, $
 },{}],8:[function(require,module,exports){
 /* Controller for the Bot Profile Page */
 module.exports = function($rootScope, $scope, $sessionStorage, $css, $routeParams, $location) {
+	$css.bind({ href: 'css/index.css'}, $scope);
+    $rootScope.header = "Patient Dashboard";
 
-    $css.bind({ href: 'css/bot-profile.css'}, $scope);
-    $rootScope.header = "Patient Profile Page";
-
-    /*if (!$rootScope.rootCodebot) {
-        $location.path('/login');
-    } else {
-        $scope.codebot = $rootScope.rootCodebot;
-    }*/
 };
 },{}],9:[function(require,module,exports){
 /* Controller for the Register Page */
@@ -758,7 +757,7 @@ module.exports = function($compile) {
 },{}],12:[function(require,module,exports){
 /* Factory for the SocketIO */
 module.exports = function ($rootScope) {
-	var socket = io.connect('ws://localhost:5000');
+	var socket = io.connect('ws://54.218.239.42:5000');
 	socket.connect
 	return {
 	    on: function (eventName, callback) {
