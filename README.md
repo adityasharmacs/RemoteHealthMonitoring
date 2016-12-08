@@ -83,8 +83,8 @@ Continuous monitoring of health vitals and other medical signals in order to det
 
 13. Web UI
     - To start in development environment
-    # gulp develop
+    #  gulp develop
 
     - To start in production
-    # gulp build
-    # gulp production
+    #  gulp build
+    #  gulp production
