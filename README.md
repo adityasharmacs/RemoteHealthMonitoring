@@ -55,15 +55,15 @@ Continuous monitoring of health vitals and other medical signals in order to det
 
     - Connection to ElasticSearch and MongoDB
     # elastic_client = new elasticsearch.Client({
-            host: '<host>:<ip>',
-            log: 'trace'
-    });
-    # var db = mongoose.connect('mongodb://<mlab-user>:<mlab-password>@ds053216.mlab.com:53211/<collection>');
+            # host: '<host>:<ip>',
+            # log: 'trace'
+    # });
+    # db = mongoose.connect('mongodb://<mlab-user>:<mlab-password>@ds053216.mlab.com:53211/<collection>');
 
 
     - AgendaJS to start cron jobs for reminders and alerts
     # agenda.define(<job-name>, function(job, done) {
-                done();
+                # done();
       });
     # agenda.every(<time>, <job-name>);
 
