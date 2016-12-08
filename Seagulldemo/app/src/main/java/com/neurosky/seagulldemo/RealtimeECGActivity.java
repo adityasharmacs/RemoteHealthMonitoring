@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.Time;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,6 +16,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,8 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TimeZone;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,7 +31,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -81,11 +78,24 @@ public class RealtimeECGActivity extends BaseActivity {
 	private int rdetected = -1;
 	private int stress = -1;
 	private int heartbeat = -1;
+	//hardcode of sampling, needs to be changed later
+//	private int sample_count = 15360;
+	private int sample_count = 2500;
+//	private double ecgSampleValueList[] = new double[sample_count];
+//	private JSONObject jsonArray = new JSONObject();
+	private JSONArray ecgSampleValueArray = new JSONArray();
+	private JSONArray ecgTimeStampArray = new JSONArray();
+	private JSONObject ecgData = new JSONObject();
+	private int counter = 0;
 
-	private MqttClient client = null;
+//	public MqttClient client = null;
     public ArrayList<Integer> ecgValues;
+//	publishMessage msgPublish = new publishMessage();
 
 	private static Calendar calendar = null;
+	private long startTime = 0;
+	private long endTime = 0;
+	private long time_stamp = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,17 +116,18 @@ public class RealtimeECGActivity extends BaseActivity {
 		btn_start.setEnabled(true);
 
 
-		/*try {
-			//client = new MqttClient("tcp://broker.mqttdashboard.com:1883", MqttClient.generateClientId(), null);
-
-            client = new MqttClient("tcp://54.244.148.72:1883", MqttClient.generateClientId(), null);
-
-			client.connect();
-
-		} catch (MqttException e) {
-			e.printStackTrace();
-		}*/
+//		try {
+//			//client = new MqttClient("tcp://broker.mqttdashboard.com:1883", MqttClient.generateClientId(), null);
+//
+//            client = new MqttClient("tcp://54.244.148.72:1883", MqttClient.generateClientId(), null);
+//
+//			client.connect();
+//
+//		} catch (MqttException e) {
+//			e.printStackTrace();
+//		}
 	}
+
 
 	private void initUI() {
 		// TODO Auto-generated method stub
@@ -197,9 +208,7 @@ public class RealtimeECGActivity extends BaseActivity {
 				device.stopRealTimeECG();
 //				nskAlgoSdk.NskAlgoStop();
 
-                Log.i(TAG,"ECG Values Start =================================================================");
-                Log.i(TAG,ecgValues.toString());
-                Log.i(TAG,"ECG Values End =================================================================");
+
 				btn_start.setText("Start");
 
 			}
@@ -235,13 +244,13 @@ public class RealtimeECGActivity extends BaseActivity {
 
     private double mean(ArrayList<Integer> heartBeatValues) {
 
-		double sum = 0;
-		for (int i = 0; i < heartBeatValues.size(); i++) {
-			sum += heartBeatValues.get(i);
-		}
-		return sum / heartBeatValues.size();
+        double sum = 0;
+        for (int i = 0; i < heartBeatValues.size(); i++) {
+            sum += heartBeatValues.get(i);
+        }
+        return sum / heartBeatValues.size();
 
-	}
+    }
 
 
     private void resetUI() {
@@ -309,7 +318,11 @@ public class RealtimeECGActivity extends BaseActivity {
 			switch (msg.what) {
 				case SeagullDevice.MSG_REALTIME_ECG:
 					short pqValue[] = {(short) 200};
-					handleRealtimeECG(msg.arg1, msg.arg2, msg.obj);
+					try {
+						handleRealtimeECG(msg.arg1, msg.arg2, msg.obj);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 					break;
 				case SeagullDevice.MSG_BATTERY_LEVEL:
 					Log.d(TAG, "Battery info: " + msg.arg1);
@@ -326,7 +339,7 @@ public class RealtimeECGActivity extends BaseActivity {
 		/**
 		 * MSG_HISTORY_ECG, MSG_HISTORY_ECG_SAMPLE,int<br/>
 		 *
-		 * @param callback
+		 *
 		 */
 
 		@Override
@@ -337,114 +350,140 @@ public class RealtimeECGActivity extends BaseActivity {
 				// If you want to receive ecg data with Handler, please call
 				// device.setTGBleHandler(null); in onResume()
 				case SeagullDevice.MSG_REALTIME_ECG:
-					handleRealtimeECG(arg1, arg2, obj);
+					try {
+						handleRealtimeECG(arg1, arg2, obj);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 					break;
 			}
 		}
 	};
 
-	protected void handleRealtimeECG(int arg1, int arg2, Object obj) {
+	protected void handleRealtimeECG(int arg1, int arg2, Object obj) throws JSONException {
 		// TODO Auto-generated method stub
 		switch (arg1) {
 			// If you want to receive ecg data with TGBleHandler , please call	device.setTGBleHandler(callback) in onResume()
 			case SeagullDevice.MSG_REALTIME_ECG_SAMPLE:
-				updateWaveView(arg2);
-				Log.i("Test", "arg2="+arg2);
-				// send the data to algorithm sdk here
-				if (arg1 == SeagullDevice.MSG_REALTIME_ECG_SAMPLE) {
-					// send the  data to algorithm  sdk here arg2 is the data put the data into algorithm sdk here.
-					short ecg_data[] = { (short) arg2 };
+				//Sending ecg data to mqtt
+//				JSONObject json = new JSONObject();
+//				json.put("MSG_REALTIME_ECG_SAMPLE",arg2);
+////				new publishMessage(json.toString()).start();
+//				publishMessage ecgPubish = new publishMessage();
+//				ecgPubish.sendMessage(json.toString());
 
-                    /*Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("PDT"));
-                    Date currentLocalTime = cal.getTime();
+				//Calculate HeartBeat
+//				System.out.println("&&&&&&&&&&&&&&&&&&&&&&&& counter : " + counter + "  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+//				if(counter == 0)
+//				{
+//					startTime = System.currentTimeMillis();
+//				}
 
-                    int currentMinute = cal.get(Calendar.MINUTE);
-					int currentSeconds = cal.get(Calendar.SECOND);
+				if(counter == sample_count-1)
+				{
+					System.out.println("&&&&&&&&&&&&&&&&&&&&&&&& counter : " + counter + "  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+//					ecgSampleValueList[counter] = ((double) arg2);
+//					endTime = System.currentTimeMillis();
+//					long  execution_time = (endTime - startTime);
+					time_stamp = System.currentTimeMillis();
+					ecgSampleValueArray.put((double) arg2);
+					ecgTimeStampArray.put(time_stamp);
 
-                    int diffInMinutes = 0,diffInSeconds = 0;
+					ecgData.accumulate("hart", ecgSampleValueArray);
+					ecgData.accumulate("timer",ecgTimeStampArray);
 
+//					HearBeatCount hb = new HearBeatCount(ecgSampleValueList, execution_time);
+//					hb.calculateHeartBeat();
+					publishMessage hbpublish = new publishMessage();
+					hbpublish.sendMessage(ecgData.toString(), "ecg-raw-readings");
 
-                    if(calendar == null )
-                    {
-                        calendar=cal;
-                    }
+					counter = 0;
+					System.out.println("##################################################################");
+					System.out.println("##################################################################");
+					System.out.println("##################################################################");
+					System.out.println("ecgSampleValueArray : " + ecgSampleValueArray.toString());
+					System.out.println("ecgTimeStampArray : " + ecgTimeStampArray.toString());
+					System.out.println("ecgData : " + ecgData.toString());
+					System.out.println("##################################################################");
+					System.out.println("##################################################################");
+					System.out.println("##################################################################");
 
-                    if(calendar!=null)
-                    {
-						diffInMinutes =  Math.abs(calendar.get(Calendar.MINUTE) - currentMinute);
-						diffInSeconds =  Math.abs(calendar.get(Calendar.SECOND) - currentSeconds);
-                    }*/
-
-					ecgValues.add(arg2);
-
-
-					//Form the CSV Format File here;
-					//Add the header and then use StringBuilkder to add all the values in the StringBuilder.
-
-					DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-					Date dateObj = null;
-
-					//System.out.println(df.format(dateobj));
-
-					if(dateObj == null)
-					{
-						df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-						dateObj = new Date();
-						df.format(dateObj);
-					}
-
-					Date dateNextObj = new Date();
-					df.format(dateNextObj);
-
-					System.out.println(TimeUnit.MILLISECONDS.toSeconds(dateObj.getTime() - dateNextObj.getTime()));
-
-
-					//DateUtils.getRelativeTimeSpanString()
-
-                   /* String topic = "pankaj123";
-                    JSONObject json = new JSONObject();
-                    try {
-                        json.put("MSG_REALTIME_ECG_SAMPLE",arg2);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    String payload = json.toString();
-					byte[] encodedPayload = new byte[0];
-					try {
-						encodedPayload = payload.getBytes("UTF-8");
-						MqttMessage message = new MqttMessage(encodedPayload);
-						//message.setRetained(true);
-						//client.publish(topic, message);
-                        ecgValues.add(arg2);
-
-                        if(diffInMinutes>=1 && diffInSeconds >=0 )
-                        {
-                            ArrayList<Integer> heartBeat = parseDataForHB(ecgValues,75);
-
-                            try {
-                                json.put("MSG_REALTIME_HEARTBEAT",heartBeat);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            payload = json.toString();
-                            encodedPayload = new byte[0];
-                            try {
-                                encodedPayload = payload.getBytes("UTF-8");
-								message = new MqttMessage(encodedPayload);
-								message.setRetained(true);
-								client.publish(topic, message);
-                            } catch (UnsupportedEncodingException | MqttException e) {
-                                e.printStackTrace();
-                            }
-                            diffInSeconds=0;
-                        }
-
-					} catch (UnsupportedEncodingException | MqttException e) {
-						e.printStackTrace();
-					}*/
-//				Log.i(TAG, "raw:"+ecg_data[0]);
-					dataCount += 2;
+					ecgSampleValueArray = new JSONArray();
+					ecgTimeStampArray = new JSONArray();
+					ecgData = new JSONObject();
 				}
+				else
+				{
+//					JSONArray temp_json = new JSONObject();
+//					jsonArray.accumulate()
+//					endTime = System.currentTimeMillis();
+					time_stamp = System.currentTimeMillis();
+//					long  execution_time = (endTime - startTime);
+//					ecgSampleValueList[counter++] = ((double) arg2);
+					ecgSampleValueArray.put((double) arg2);
+					ecgTimeStampArray.put(time_stamp);
+					counter++;
+				}
+
+
+				//Plotting Graph
+				updateWaveView(arg2);
+//				Log.i("Test", "arg2="+arg2);
+				// send the data to algorithm sdk here
+//				if (arg1 == SeagullDevice.MSG_REALTIME_ECG_SAMPLE) {
+//					// send the  data to algorithm  sdk here arg2 is the data put the data into algorithm sdk here.
+//					short ecg_data[] = { (short) arg2 };
+//
+//					JSONObject json = new JSONObject();
+//					json.put("MSG_REALTIME_ECG_SAMPLE",arg2);
+//					new publishMessage(json.toString()).start();
+
+
+
+//                    String topic = "pankaj123";
+//                    JSONObject json = new JSONObject();
+//                    try {
+//                        json.put("MSG_REALTIME_ECG_SAMPLE",arg2);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    String payload = json.toString();
+//					byte[] encodedPayload = new byte[0];
+//					try {
+//						encodedPayload = payload.getBytes("UTF-8");
+//						MqttMessage message = new MqttMessage(encodedPayload);
+//						//message.setRetained(true);
+//						client.publish(topic, message);
+//                        ecgValues.add(arg2);
+//
+//                        if(diffInMinutes>=1 && diffInSeconds >=0 )
+//                        {
+//                            ArrayList<Integer> heartBeat = parseDataForHB(ecgValues,75);
+//
+//                            try {
+//                                json.put("MSG_REALTIME_HEARTBEAT",heartBeat);
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            payload = json.toString();
+//                            encodedPayload = new byte[0];
+//                            try {
+//                                encodedPayload = payload.getBytes("UTF-8");
+//								message = new MqttMessage(encodedPayload);
+//								//message.setRetained(true);
+//								client.publish(topic, message);
+//                            } catch (UnsupportedEncodingException | MqttException e) {
+//                                e.printStackTrace();
+//                            }
+//                            diffInSeconds=0;
+//                        }
+//
+//					} catch (UnsupportedEncodingException | MqttException e) {
+//						e.printStackTrace();
+//					}
+////				Log.i(TAG, "raw:"+ecg_data[0]);
+//					dataCount += 2;
+//				}
 
 
 
@@ -454,23 +493,23 @@ public class RealtimeECGActivity extends BaseActivity {
 
 				Log.i(TAG, "MSG_REALTIME_ECG_COMMENT: " + obj);
 
-               /* String topic = "pankaj123";
-                JSONObject json = new JSONObject();*/
-      /*          try {
-                    json.put("MSG_REALTIME_ECG_COMMENT",obj);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                String payload = json.toString();
-                byte[] encodedPayload = new byte[0];
-                try {
-                    encodedPayload = payload.getBytes("UTF-8");
-                    MqttMessage message = new MqttMessage(encodedPayload);
-                    message.setRetained(true);
-                    client.publish(topic, message);
-                } catch (UnsupportedEncodingException | MqttException e) {
-                    e.printStackTrace();
-                }*/
+//                String topic = "pankaj123";
+//                JSONObject json = new JSONObject();
+//                try {
+//                    json.put("MSG_REALTIME_ECG_COMMENT",obj);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                String payload = json.toString();
+//                byte[] encodedPayload = new byte[0];
+//                try {
+//                    encodedPayload = payload.getBytes("UTF-8");
+//                    MqttMessage message = new MqttMessage(encodedPayload);
+//                    message.setRetained(true);
+//                    client.publish(topic, message);
+//                } catch (UnsupportedEncodingException | MqttException e) {
+//                    e.printStackTrace();
+//                }
 
 				break;
 			case SeagullDevice.MSG_REALTIME_ECG_FINALHR:
@@ -510,23 +549,23 @@ public class RealtimeECGActivity extends BaseActivity {
 			case SeagullDevice.MSG_REALTIME_ECG_TS:
 				Log.i(TAG, "MSG_REALTIME_ECG_TS: " + obj);
 
-                /*String topic1 = "pankaj123";
-                JSONObject json1 = new JSONObject();
-                try {
-                    json1.put("MSG_REALTIME_ECG_TS",obj);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                String payload1 = json1.toString();
-                byte[] encodedPayload1 = new byte[0];
-                try {
-                    encodedPayload = payload1.getBytes("UTF-8");
-                    MqttMessage message = new MqttMessage(encodedPayload);
-                    message.setRetained(true);
-                    client.publish(topic1, message);
-                } catch (UnsupportedEncodingException | MqttException e) {
-                    e.printStackTrace();
-                }*/
+//                String topic1 = "pankaj123";
+//                JSONObject json1 = new JSONObject();
+//                try {
+//                    json1.put("MSG_REALTIME_ECG_TS",obj);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                String payload1 = json1.toString();
+//                byte[] encodedPayload1 = new byte[0];
+//                try {
+//                    encodedPayload = payload1.getBytes("UTF-8");
+//                    MqttMessage message = new MqttMessage(encodedPayload);
+//                    message.setRetained(true);
+//                    client.publish(topic1, message);
+//                } catch (UnsupportedEncodingException | MqttException e) {
+//                    e.printStackTrace();
+//                }
 
 
 				break;
