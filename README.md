@@ -86,5 +86,5 @@ Continuous monitoring of health vitals and other medical signals in order to det
     #  gulp develop
 
     - To start in production
-    #  gulp build
-    #  gulp production
+      gulp build
+      gulp production
