@@ -49,11 +49,11 @@ Continuous monitoring of health vitals and other medical signals in order to det
     # python sensortag.py
 
 12. Web Server
-    - To start nodejs server 
+    Start nodejs server 
       # node server.js
 
 
-    - Connection to ElasticSearch and MongoDB
+    Connection to ElasticSearch and MongoDB
     # elastic_client = new elasticsearch.Client({
             # host: '<host>:<ip>',
             # log: 'trace'
@@ -61,30 +61,30 @@ Continuous monitoring of health vitals and other medical signals in order to det
     # db = mongoose.connect('mongodb://<mlab-user>:<mlab-password>@ds053216.mlab.com:53211/<collection>');
 
 
-    - AgendaJS to start cron jobs for reminders and alerts
+    AgendaJS to start cron jobs for reminders and alerts
     # agenda.define(<job-name>, function(job, done) {
                 # done();
       });
     # agenda.every(<time>, <job-name>);
 
 
-    - SocketIO to pass real-time values from MQTT to UI
+    SocketIO to pass real-time values from MQTT to UI
     # var io = require('socket.io').listen(app.listen(5000));
     # io.sockets.emit(<topic-name>, <message>)
 
 
-    - Nodemailer to send notifications on email
+    Nodemailer to send notifications on email
     # var transporter = nodemailer.createTransport('smtps://<username>%40gmail.com:<password>@smtp.gmail.com');
 
 
-    - Twilio to send text notifications
+    Twilio to send text notifications
     # var twilio_client = twilio('<accountId>', '<authenticationKey>');
 
 
 13. Web UI
-    - To start in development environment
+    Start in development environment
     #  gulp develop
 
-    - To start in production
-      gulp build
-      gulp production
+    Start in production
+     # gulp build
+     # gulp production
