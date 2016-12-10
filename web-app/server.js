@@ -16,7 +16,7 @@ var elasticsearch = require('elasticsearch');
 var transporter = nodemailer.createTransport('smtps://healthmonitoring295%40gmail.com:project295@smtp.gmail.com');
 var twilio_client = twilio('ACfefad1895f88022fdbf51116f86454cc', 'b541243b2c242b0a34481a3a2fd06be5');
 var elastic_client = new elasticsearch.Client({
-            host: '54.67.103.96:9200',
+            host: '54.67.110.169:9200',
             log: 'trace'
     });
 
