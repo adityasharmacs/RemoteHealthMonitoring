@@ -49,4 +49,4 @@ app.factory('socket', ['$rootScope', socketIO]);
 
 
 angular.module("Service", [])
-.constant("BASE_URL", "http://localhost:5000");
+.constant("BASE_URL", "http://54.153.58.201:5000");

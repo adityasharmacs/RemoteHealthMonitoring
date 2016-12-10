@@ -2,7 +2,8 @@
 
 module.exports = function ($http, BASE_URL) {
     var headers = { 'Content-Type': 'application/json'};
-    var urlBase =  'http://54.218.239.42:5000/api';
+    //var urlBase =  'http://54.218.239.42:5000/api';
+    var urlBase = BASE_URL + '/api';
 
     this.getEcgData = function (id) {
         return $http.get(urlBase + '/' + id);
