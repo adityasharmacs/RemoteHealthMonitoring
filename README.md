@@ -5,24 +5,9 @@ Continuous monitoring of health vitals and other medical signals in order to det
 ### Set Up ###
 
 1. Smart Pill Bottle - weight sensor
-  Add library files to arduino library from pillbottle_weight sense folder.
-  Upload Weight_sense.ino file 
-  Do proper connections as mentioned in weight_sense.ino file.
- 
 2. Motion Sensor
- To turn on the sensor Press button no.1 for 6 secs or more on Sensortag
- Connect the sensortag to mobile gateway via bluetooth 
- Click the push to cloud on Sensortag mobile app 
-
 3. ECG Sensor
- Turn on the ECG sensor 
- Connect the sensor to mobile gateway via bluetooth
- Click on ECG sensor on mobile app to start communication  
-
 4. Mobile Gateway
- Turn on Bluetooth
- Start the Health Mobile app
-
 5. Signal Processing 
    Script filters raw ECG signal, extracts egg features from signal. These features are passed as input to trained ANN model to get prediction.
    # 
